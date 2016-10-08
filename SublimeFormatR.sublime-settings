@@ -1,0 +1,9 @@
+{
+  //
+  "comment": true,
+  "blank": true,
+  "arrow": true,
+  "brace_newline": false,
+  "indent": 2,
+  "width_cutoff": 80
+}
