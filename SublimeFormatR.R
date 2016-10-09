@@ -1,23 +1,13 @@
 args <- commandArgs(trailingOnly = TRUE)
 pkg_path <- args[1]
-settings <- args[2]
-# res <- paste(args, collapse = " ")
-
-comment <- TRUE
-blank <- TRUE
-arrow <- TRUE
-brace.newline <- FALSE
-indent <- 2
-width.cutoff <- 80
-
-# res <- formatR::tidy_source(
-#   "TEMP.R", comment = comment, blank = blank, arrow = arrow, 
-#   brace.newline = brace.newline, indent = indent, width.cutoff = width.cutoff )$text.tidy
-
-
+comment <- as.logical(args[2])
+blank <- as.logical(args[3])
+arrow <- as.logical(args[4])
+brace.newline <- as.logical(args[5])
+indent <- as.integer(args[6])
+width.cutoff <- as.integer(args[7])
 
 res <- formatR::tidy_source(
   paste0(pkg_path, "\\TEMP.R"), comment = comment, blank = blank, arrow = arrow, 
   brace.newline = brace.newline, indent = indent, width.cutoff = width.cutoff, output = FALSE )$text.tidy
-cat(res, file = paste0(pkg_path, "\\test.txt"))
 cat(res)
