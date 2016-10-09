@@ -20,8 +20,17 @@ class FormatrCommand(sublime_plugin.TextCommand):
         width_cutoff =  str(settings.get("width_cutoff", 80))
         args = [pkg_path, comment, blank, arrow, brace_newline, indent, width_cutoff]
         # \n can not be in the argument of check_output()?
-        text_formated = format_r(args)
+        try:
+            text_formated = format_r(args)
+        except Exception:
+            pass
         os.remove(tmp)
+        error_file = pkg_path + "\\ERROR.txt"
+        if os.path.isfile(error_file):
+            with open(error_file, "r") as error_f:
+                error_message = error_f.read()
+            sublime.error_message(error_message)
+            os.remove(error_file)
         self.view.replace(edit, region, text_formated)
 
 
