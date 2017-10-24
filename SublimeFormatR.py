@@ -27,10 +27,12 @@ class FormatrCommand(sublime_plugin.TextCommand):
 
         args = [in_file, out_file, comment, blank, arrow, brace_newline, indent, width_cutoff]
 
-        subprocess.check_call(["Rscript", format_script_path] + args)
+        cmd = ["Rscript", format_script_path] + args
+        print(cmd)
+        subprocess.check_call(cmd)
 
         with open(out_file, "r") as out_file_buf:
-            out_text = out_file_buf.read().rstrip('\n')
+            out_text = out_file_buf.read()
 
         self.view.replace(edit, region, out_text)
 
