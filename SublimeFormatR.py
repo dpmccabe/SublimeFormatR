@@ -6,10 +6,16 @@ class FormatrCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         region = self.view.sel()[0]
         text = self.view.substr(region)
-        pkg_path = sublime.packages_path() + "\\SublimeFormatR"
-        tmp = pkg_path  + "\\TEMP.R"
-        with open(tmp, "w") as code_file:
-            code_file.write(text)
+        
+        pkg_path = os.path.join(sublime.packages_path(), "SublimeFormatR")
+        
+        in_file = os.path.join(pkg_path, "in.R")
+        out_file = os.path.join(pkg_path, "out.R")
+
+        with open(in_file, "w") as in_file_buf:
+            in_file_buf.write(text)
+
+        format_script_path = os.path.join(pkg_path, "SublimeFormatR.R")
 
         settings = sublime.load_settings('SublimeFormatR.sublime-settings')
         comment =  str(settings.get("comment ", True))
@@ -18,23 +24,17 @@ class FormatrCommand(sublime_plugin.TextCommand):
         brace_newline =  str(settings.get("brace_newline", False))
         indent =  str(settings.get("indent", 2))
         width_cutoff =  str(settings.get("width_cutoff", 80))
-        args = [pkg_path, comment, blank, arrow, brace_newline, indent, width_cutoff]
-        # \n can not be in the argument of check_output()?
-        try:
-            text_formated = format_r(args)
-        except Exception:
-            pass
-        os.remove(tmp)
-        error_file = pkg_path + "\\ERROR.txt"
-        if os.path.isfile(error_file):
-            with open(error_file, "r") as error_f:
-                error_message = error_f.read()
-            sublime.error_message(error_message)
-            os.remove(error_file)
-        self.view.replace(edit, region, text_formated)
 
+        args = [in_file, out_file, comment, blank, arrow, brace_newline, indent, width_cutoff]
 
-def format_r(args):
-    cmd = ["Rscript", args[0] + "\\SublimeFormatR.R"] + args
-    res = subprocess.check_output(cmd, universal_newlines = True, shell = True)
-    return res
+        subprocess.check_call(["Rscript", format_script_path] + args)
+
+        with open(out_file, "r") as out_file_buf:
+            out_text = out_file_buf.read().rstrip('\n')
+
+        self.view.replace(edit, region, out_text)
+
+        os.remove(in_file)
+        os.remove(out_file)
+
+        print('Formatted R code')
